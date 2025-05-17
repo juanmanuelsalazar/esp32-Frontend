@@ -1,8 +1,18 @@
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard ESP32</title>
+</head>
+<body>
+<h1>Monitor IoT</h1>
+<p>Temperatura: <span id="temp">--</span> °C</p>
+<p>Humedad: <span id="hum">--</span> %</p>
 
-<script>
-    // Tu configuración de Firebase
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyBoMoD-XBP7Rl5rmX__nh04O6c6xZsMkN4",
         authDomain: "iotjuan.firebaseapp.com",
@@ -10,19 +20,23 @@
         projectId: "iotjuan",
         storageBucket: "iotjuan.firebasestorage.app",
         messagingSenderId: "953082830486",
-        appId: "1:953082830486:web:08e0bc2f6c317efd29acb7"
+        appId: "1:953082830486:web:08e0bc2f6c317efd29acb7",
+        measurementId: "G-17G6BX6LP5"
     };
 
-    // Inicializar Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database(app);
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-    // Leer temperatura
-    firebase.database().ref('sensor/temperatura').on('value', (snapshot) => {
-        const valor = snapshot.val();
-        console.log("Temperatura:", valor);
-        document.getElementById('valor').innerText = "Temperatura: " + valor + " °C";
+    const tempRef = ref(database, 'sensores/temperatura');
+    const humRef = ref(database, 'sensores/humedad');
+
+    onValue(tempRef, (snapshot) => {
+        document.getElementById('temp').textContent = snapshot.val();
+    });
+
+    onValue(humRef, (snapshot) => {
+        document.getElementById('hum').textContent = snapshot.val();
     });
 </script>
-
-<h1 id="valor">Cargando...</h1>
+</body>
+</html>
