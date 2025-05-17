@@ -1,0 +1,28 @@
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js"></script>
+
+<script>
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoMoD-XBP7Rl5rmX__nh04O6c6xZsMkN4",
+        authDomain: "iotjuan.firebaseapp.com",
+        databaseURL: "https://iotjuan-default-rtdb.firebaseio.com",
+        projectId: "iotjuan",
+        storageBucket: "iotjuan.firebasestorage.app",
+        messagingSenderId: "953082830486",
+        appId: "1:953082830486:web:08e0bc2f6c317efd29acb7"
+    };
+
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(app);
+
+    // Leer temperatura
+    firebase.database().ref('sensor/temperatura').on('value', (snapshot) => {
+        const valor = snapshot.val();
+        console.log("Temperatura:", valor);
+        document.getElementById('valor').innerText = "Temperatura: " + valor + " °C";
+    });
+</script>
+
+<h1 id="valor">Cargando...</h1>
