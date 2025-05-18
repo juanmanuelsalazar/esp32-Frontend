@@ -16,9 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Referencias
-const tempRef = ref(database, "sensores/temperatura");
-const humRef = ref(database, "sensores/humedad");
+// ✅ Referencias corregidas según Firebase
+const tempRef = ref(database, "sensor/temperatura");
+const humRef = ref(database, "sensor/humedad");
 
 const tempElement = document.getElementById("temp");
 const humElement = document.getElementById("hum");
