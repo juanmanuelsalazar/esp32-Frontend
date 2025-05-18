@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dashboard de Monitoreo IoT</title>
-    <link rel="stylesheet" href="style.css"/>
+    <title>Dashboard IoT ESP32</title>
+    <link rel="stylesheet" href="styles.css"/>
     <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body>
-<div class="container">
-    <h1>Dashboard IoT en Tiempo Real</h1>
-    <div class="cards">
+<header>
+    <h1>🌡️ Dashboard IoT ESP32</h1>
+</header>
+
+<main>
+    <section class="cards">
         <div class="card">
             <h2>Temperatura</h2>
             <p id="temp">-- °C</p>
@@ -19,9 +22,12 @@
             <h2>Humedad</h2>
             <p id="hum">-- %</p>
         </div>
-    </div>
-    <div id="chart-container"></div>
-</div>
+    </section>
+
+    <section class="chart-section">
+        <div id="chart-container"></div>
+    </section>
+</main>
 
 <script type="module" src="app.js"></script>
 </body>
