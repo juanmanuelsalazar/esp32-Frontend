@@ -11,7 +11,7 @@ body {
 }
 
 header {
-  background-color: #19d21c;
+  background-color: #25752a;
   color: white;
   padding: 20px;
   text-align: center;
@@ -58,7 +58,7 @@ main {
 .card p {
   font-size: 2rem;
   font-weight: bold;
-  color: #19d21c;
+  color: #25752a;
 }
 
 .chart-section {
