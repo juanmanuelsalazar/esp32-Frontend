@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-// Configuración de Firebase
+// Configuración Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBoMoD-XBP7Rl5rmX__nh04O6c6xZsMkN4",
   authDomain: "iotjuan.firebaseapp.com",
@@ -14,48 +14,100 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const db = getDatabase(app);
 
-// ✅ Referencias corregidas según Firebase
-const tempRef = ref(database, "sensor/temperatura");
-const humRef = ref(database, "sensor/humedad");
+// Referencias
+const tempRef = ref(db, "sensor/temperatura");
+const humRef = ref(db, "sensor/humedad");
 
-const tempElement = document.getElementById("temp");
-const humElement = document.getElementById("hum");
+// Elementos DOM
+const tempVal = document.getElementById("temp-val");
+const humVal = document.getElementById("hum-val");
 
-// Inicializar gráfico
-const chart = Highcharts.chart('chart-container', {
+// Inicializa series
+let tempSeries = [];
+let humSeries = [];
+
+function updateChartData(chart, series, newVal) {
+  const x = (new Date()).getTime();
+  series.push([x, newVal]);
+  if (series.length > 20) series.shift();
+  chart.series[0].setData(series, true);
+}
+
+// Gráficas
+const chartTemp = Highcharts.chart("chart-temp", {
   chart: { type: 'spline' },
-  title: { text: 'Datos en Tiempo Real' },
-  xAxis: {
-    type: 'datetime',
-    tickPixelInterval: 150
-  },
-  yAxis: {
-    title: { text: 'Valores' },
-    min: 0
-  },
-  series: [{
-    name: 'Temperatura (°C)',
-    data: []
-  }, {
-    name: 'Humedad (%)',
-    data: []
-  }]
+  title: { text: 'Temperatura Tiempo Real' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: '°C' }},
+  series: [{ name: 'Temperatura', data: [] }]
 });
 
-// Escuchar temperatura
-onValue(tempRef, (snapshot) => {
-  const temp = parseFloat(snapshot.val());
-  const time = new Date().getTime();
-  tempElement.innerText = `${temp} °C`;
-  chart.series[0].addPoint([time, temp], true, chart.series[0].data.length > 20);
+const chartHum = Highcharts.chart("chart-hum", {
+  chart: { type: 'spline' },
+  title: { text: 'Humedad Tiempo Real' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: '%' }},
+  series: [{ name: 'Humedad', data: [] }]
 });
 
-// Escuchar humedad
-onValue(humRef, (snapshot) => {
-  const hum = parseFloat(snapshot.val());
-  const time = new Date().getTime();
-  humElement.innerText = `${hum} %`;
-  chart.series[1].addPoint([time, hum], true, chart.series[1].data.length > 20);
+const chartHistTemp = Highcharts.chart("chart-hist-temp", {
+  chart: { type: 'line' },
+  title: { text: 'Histórico de Temperatura' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: '°C' }},
+  series: [{ name: 'Hist. Temperatura', data: [] }]
+});
+
+const chartHistHum = Highcharts.chart("chart-hist-hum", {
+  chart: { type: 'line' },
+  title: { text: 'Histórico de Humedad' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: '%' }},
+  series: [{ name: 'Hist. Humedad', data: [] }]
+});
+
+const chartComparativo = Highcharts.chart("chart-comparativo", {
+  chart: { type: 'areaspline' },
+  title: { text: 'Comparativo Temp vs Humedad' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: 'Valor' }},
+  series: [
+    { name: 'Temperatura', data: [] },
+    { name: 'Humedad', data: [] }
+  ]
+});
+
+// Firebase listeners
+onValue(tempRef, snapshot => {
+  const val = snapshot.val();
+  tempVal.innerText = val + " °C";
+  const time = (new Date()).getTime();
+  updateChartData(chartTemp, tempSeries, val);
+  updateChartData(chartHistTemp, chartHistTemp.series[0].data, val);
+  chartComparativo.series[0].addPoint([time, val], true, chartComparativo.series[0].data.length > 20);
+});
+
+onValue(humRef, snapshot => {
+  const val = snapshot.val();
+  humVal.innerText = val + " %";
+  const time = (new Date()).getTime();
+  updateChartData(chartHum, humSeries, val);
+  updateChartData(chartHistHum, chartHistHum.series[0].data, val);
+  chartComparativo.series[1].addPoint([time, val], true, chartComparativo.series[1].data.length > 20);
+});
+
+// Navegación entre tabs
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabs = document.querySelectorAll(".tab");
+
+tabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tab = btn.getAttribute("data-tab");
+    tabButtons.forEach(b => b.classList.remove("active"));
+    tabs.forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(tab).classList.add("active");
+  });
 });

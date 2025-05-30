@@ -3,30 +3,53 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="shortcut icon" href="BSF.ico">
-    <title>Inzecta</title>
+    <title>Dashboard IoT ESP32</title>
     <link rel="stylesheet" href="styles.css"/>
     <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body>
 <header>
-    <h1>Dashboard IoT Inzecta</h1>
+    <h1>📊 Dashboard IoT ESP32</h1>
 </header>
 
 <main>
-    <section class="cards">
+    <nav class="tab-nav">
+        <button class="tab-button active" data-tab="temp">🌡️ Temp. Tiempo Real</button>
+        <button class="tab-button" data-tab="hum">💧 Humedad Tiempo Real</button>
+        <button class="tab-button" data-tab="hist-temp">📈 Histórico Temp.</button>
+        <button class="tab-button" data-tab="hist-hum">📉 Histórico Humedad</button>
+        <button class="tab-button" data-tab="comparativo">⚖️ Comparativo</button>
+    </nav>
+
+    <section id="temp" class="tab active">
         <div class="card">
             <h2>Temperatura</h2>
-            <p id="temp">-- °C</p>
+            <p id="temp-val">-- °C</p>
         </div>
-        <div class="card">
-            <h2>Humedad</h2>
-            <p id="hum">-- %</p>
-        </div>
+        <div id="chart-temp"></div>
     </section>
 
-    <section class="chart-section">
-        <div id="chart-container"></div>
+    <section id="hum" class="tab">
+        <div class="card">
+            <h2>Humedad</h2>
+            <p id="hum-val">-- %</p>
+        </div>
+        <div id="chart-hum"></div>
+    </section>
+
+    <section id="hist-temp" class="tab">
+        <h2>📈 Histórico de Temperatura</h2>
+        <div id="chart-hist-temp"></div>
+    </section>
+
+    <section id="hist-hum" class="tab">
+        <h2>📉 Histórico de Humedad</h2>
+        <div id="chart-hist-hum"></div>
+    </section>
+
+    <section id="comparativo" class="tab">
+        <h2>⚖️ Comparativo Temperatura vs Humedad</h2>
+        <div id="chart-comparativo"></div>
     </section>
 </main>
 
