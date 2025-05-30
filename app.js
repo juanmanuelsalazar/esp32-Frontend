@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Referencias
+// Referencias para datos en tiempo real
 const tempRef = ref(db, "sensor/temperatura");
 const humRef = ref(db, "sensor/humedad");
 
@@ -24,10 +24,11 @@ const humRef = ref(db, "sensor/humedad");
 const tempVal = document.getElementById("temp-val");
 const humVal = document.getElementById("hum-val");
 
-// Series
+// Series para tiempo real
 let tempSeries = [];
 let humSeries = [];
 
+// Función para actualizar datos en gráfico tiempo real
 function updateChartData(chart, series, newVal) {
   const x = (new Date()).getTime();
   series.push([x, newVal]);
@@ -35,7 +36,8 @@ function updateChartData(chart, series, newVal) {
   chart.series[0].setData(series, true);
 }
 
-// Gráficas
+// Configuración gráficos
+
 const chartTemp = Highcharts.chart("chart-temp", {
   chart: { type: 'spline' },
   title: { text: 'Temperatura Tiempo Real' },
@@ -79,13 +81,13 @@ const chartComparativo = Highcharts.chart("chart-comparativo", {
   ]
 });
 
-// Tiempo real
+// Escuchar datos en tiempo real y actualizar gráficos
 onValue(tempRef, snapshot => {
   const val = snapshot.val();
   const time = (new Date()).getTime();
   tempVal.innerText = val + " °C";
   updateChartData(chartTemp, tempSeries, val);
-  updateChartData(chartHistTemp, chartHistTemp.series[0].data, val);
+  // Actualizamos también en gráfico comparativo en tiempo real
   chartComparativo.series[0].addPoint([time, val], true, chartComparativo.series[0].data.length > 20);
 });
 
@@ -94,7 +96,6 @@ onValue(humRef, snapshot => {
   const time = (new Date()).getTime();
   humVal.innerText = val + " %";
   updateChartData(chartHum, humSeries, val);
-  updateChartData(chartHistHum, chartHistHum.series[0].data, val);
   chartComparativo.series[1].addPoint([time, val], true, chartComparativo.series[1].data.length > 20);
 });
 
@@ -111,37 +112,64 @@ tabButtons.forEach(btn => {
   });
 });
 
-// Filtros
-function getTimestamp(dateStr, endOfDay = false) {
-  const date = new Date(dateStr);
-  if (endOfDay) date.setHours(23, 59, 59, 999);
-  else date.setHours(0, 0, 0, 0);
-  return date.getTime();
+// --- Función para convertir string timestamp ISO a milisegundos ---
+function isoToTimestamp(isoString) {
+  return new Date(isoString).getTime();
 }
 
-function loadHistoricalData(path, start, end, chart, label) {
-  const startTs = getTimestamp(start);
-  const endTs = getTimestamp(end, true);
-  const dataRef = ref(db, path);
+// --- Función para cargar datos históricos filtrando por rango de fechas ---
+function loadHistoricalData(start, end) {
+  const startTs = isoToTimestamp(start);
+  const endTs = isoToTimestamp(end);
 
-  get(dataRef).then(snapshot => {
+  const historialRef = ref(db, "historial");
+
+  get(historialRef).then(snapshot => {
     const data = snapshot.val();
-    if (!data) return;
-    const filtered = Object.entries(data)
-        .map(([ts, val]) => [parseInt(ts), val])
-        .filter(([ts]) => ts >= startTs && ts <= endTs)
-        .sort((a, b) => a[0] - b[0]);
+    if (!data) {
+      alert("No hay datos en historial");
+      return;
+    }
 
-    chart.series[0].setData(filtered);
-    chart.setTitle({ text: `${label} (${start} → ${end})` });
+    let tempData = [];
+    let humData = [];
+
+    // Recorremos cada nodo (fecha ISO)
+    Object.entries(data).forEach(([key, value]) => {
+      const timeMs = isoToTimestamp(key);
+      if (timeMs >= startTs && timeMs <= endTs) {
+        tempData.push([timeMs, value.temperatura]);
+        humData.push([timeMs, value.humedad]);
+      }
+    });
+
+    // Ordenamos por fecha
+    tempData.sort((a, b) => a[0] - b[0]);
+    humData.sort((a, b) => a[0] - b[0]);
+
+    // Actualizar gráficos históricos y comparativo
+    chartHistTemp.series[0].setData(tempData);
+    chartHistHum.series[0].setData(humData);
+
+    chartHistTemp.setTitle({ text: `Histórico Temperatura (${start} → ${end})` });
+    chartHistHum.setTitle({ text: `Histórico Humedad (${start} → ${end})` });
+
+    chartComparativo.series[0].setData(tempData);
+    chartComparativo.series[1].setData(humData);
+    chartComparativo.setTitle({ text: `Comparativo Temp vs Humedad (${start} → ${end})` });
+  }).catch(error => {
+    console.error("Error al cargar historial:", error);
   });
 }
 
+// Listeners para filtros
 document.getElementById("filter-temp").addEventListener("click", () => {
   const start = document.getElementById("start-date-temp").value;
   const end = document.getElementById("end-date-temp").value;
   if (start && end) {
-    loadHistoricalData("historial/temperatura", start, end, chartHistTemp, "Histórico Temperatura");
+    loadHistoricalData(start, end);
+  } else {
+    alert("Por favor selecciona ambas fechas para Temperatura");
   }
 });
 
@@ -149,6 +177,8 @@ document.getElementById("filter-hum").addEventListener("click", () => {
   const start = document.getElementById("start-date-hum").value;
   const end = document.getElementById("end-date-hum").value;
   if (start && end) {
-    loadHistoricalData("historial/humedad", start, end, chartHistHum, "Histórico Humedad");
+    loadHistoricalData(start, end);
+  } else {
+    alert("Por favor selecciona ambas fechas para Humedad");
   }
 });
