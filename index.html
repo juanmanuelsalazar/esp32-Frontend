@@ -9,16 +9,16 @@
 </head>
 <body>
 <header>
-    <h1>📊 Dashboard IoT INZECTA</h1>
+    <h1> Dashboard IoT INZECTA</h1>
 </header>
 
 <main>
     <nav class="tab-nav">
-        <button class="tab-button active" data-tab="temp">🌡️ Temp. Tiempo Real</button>
-        <button class="tab-button" data-tab="hum">💧 Humedad Tiempo Real</button>
-        <button class="tab-button" data-tab="hist-temp">📈 Histórico Temp.</button>
-        <button class="tab-button" data-tab="hist-hum">📉 Histórico Humedad</button>
-        <button class="tab-button" data-tab="comparativo">⚖️ Comparativo</button>
+        <button class="tab-button active" data-tab="temp"> Temp. Tiempo Real</button>
+        <button class="tab-button" data-tab="hum"> Humedad Tiempo Real</button>
+        <button class="tab-button" data-tab="hist-temp"> Histórico Temp.</button>
+        <button class="tab-button" data-tab="hist-hum"> Histórico Humedad</button>
+        <button class="tab-button" data-tab="comparativo"> Comparativo</button>
     </nav>
 
     <section id="temp" class="tab active">
@@ -38,23 +38,32 @@
     </section>
 
     <section id="hist-temp" class="tab">
-        <h2>📈 Histórico de Temperatura</h2>
-        <label>Desde: <input type="date" id="start-date-temp" /></label>
-        <label>Hasta: <input type="date" id="end-date-temp" /></label>
-        <button id="filter-temp">Filtrar</button>
+        <h2> Histórico de Temperatura</h2>
+        <div class="filter-container">
+            <label for="start-date-temp">Desde:</label>
+            <input type="date" id="start-date-temp" />
+            <label for="end-date-temp">Hasta:</label>
+            <input type="date" id="end-date-temp" />
+            <button id="filter-temp">Filtrar</button>
+        </div>
         <div id="chart-hist-temp"></div>
     </section>
 
     <section id="hist-hum" class="tab">
-        <h2>📉 Histórico de Humedad</h2>
-        <label>Desde: <input type="date" id="start-date-hum" /></label>
-        <label>Hasta: <input type="date" id="end-date-hum" /></label>
-        <button id="filter-hum">Filtrar</button>
+        <h2> Histórico de Humedad</h2>
+        <div class="filter-container">
+            <label for="start-date-hum">Desde:</label>
+            <input type="date" id="start-date-hum" />
+            <label for="end-date-hum">Hasta:</label>
+            <input type="date" id="end-date-hum" />
+            <button id="filter-hum">Filtrar</button>
+        </div>
         <div id="chart-hist-hum"></div>
     </section>
 
+
     <section id="comparativo" class="tab">
-        <h2>⚖️ Comparativo Temperatura vs Humedad</h2>
+        <h2> Comparativo Temperatura vs Humedad</h2>
         <div id="chart-comparativo"></div>
     </section>
 </main>
