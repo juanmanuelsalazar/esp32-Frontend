@@ -117,7 +117,6 @@ function isoToTimestamp(isoString) {
   return new Date(isoString).getTime();
 }
 
-// --- Función para cargar datos históricos filtrando por rango de fechas ---
 function loadHistoricalData(start, end) {
   const startTs = isoToTimestamp(start);
   const endTs = isoToTimestamp(end);
@@ -134,12 +133,15 @@ function loadHistoricalData(start, end) {
     let tempData = [];
     let humData = [];
 
-    // Recorremos cada nodo (fecha ISO)
-    Object.entries(data).forEach(([key, value]) => {
-      const timeMs = isoToTimestamp(key);
+    // Recorremos cada nodo (ID aleatorio)
+    Object.values(data).forEach(entry => {
+      const fecha = entry.fecha;
+      if (!fecha) return;
+
+      const timeMs = isoToTimestamp(fecha);
       if (timeMs >= startTs && timeMs <= endTs) {
-        tempData.push([timeMs, value.temperatura]);
-        humData.push([timeMs, value.humedad]);
+        tempData.push([timeMs, entry.temperatura]);
+        humData.push([timeMs, entry.humedad]);
       }
     });
 
@@ -161,6 +163,7 @@ function loadHistoricalData(start, end) {
     console.error("Error al cargar historial:", error);
   });
 }
+
 
 // Listeners para filtros
 document.getElementById("filter-temp").addEventListener("click", () => {
