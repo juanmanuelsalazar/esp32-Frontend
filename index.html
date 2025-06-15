@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard IoT INZECTA</title>
+    <link rel="shortcut icon" href="/BSF.ico" />
     <link rel="stylesheet" href="styles.css"/>
     <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body>
 <header>
-    <h1> Dashboard IoT INZECTA</h1>
+    <h1>INZECTA</h1>
 </header>
 
 <main>
@@ -65,29 +66,28 @@
     <!-- HISTÓRICO TEMPERATURAS INTERNAS -->
     <section id="hist-temp-internas" class="tab">
         <h2>Histórico de Temperaturas Internas</h2>
-        <form id="form-temp-internas" class="form-fechas">
-            <label>Desde:</label>
-            <input type="date" id="desde-temp-internas">
-            <label>Hasta:</label>
-            <input type="date" id="hasta-temp-internas">
-            <button type="submit">Actualizar</button>
-        </form>
-        <div id="chart-temp-internas"></div>
+        <div class="filter-container">
+            <label for="start-date-hum">Desde:</label>
+            <input type="date" id="start-date-temp-int" />
+            <label for="end-date-hum">Hasta:</label>
+            <input type="date" id="end-date-temp-int" />
+            <button id="filter-temp-internas">Filtrar</button>
+        </div>
+        <div id="chart-hist-temp-internas"></div>
     </section>
 
     <!-- CALIDAD DEL AIRE (AMONIACO) -->
     <section id="calidad-aire" class="tab">
         <h2>Calidad del Aire (Amoniaco)</h2>
-        <form id="form-amoniaco" class="form-fechas">
-            <label>Desde:</label>
-            <input type="date" id="desde-amoniaco">
-            <label>Hasta:</label>
-            <input type="date" id="hasta-amoniaco">
-            <button type="submit">Actualizar</button>
-        </form>
+        <div class="filter-container">
+            <label for="start-date-hum">Desde:</label>
+            <input type="date" id="start-date-amoniaco" />
+            <label for="end-date-hum">Hasta:</label>
+            <input type="date" id="end-date-amoniaco" />
+            <button id="filter-amoniaco">Filtrar</button>
+        </div>
         <div id="chart-amoniaco"></div>
     </section>
-
 
     <section id="comparativo" class="tab">
         <h2> Comparativo Temperatura vs Humedad</h2>

@@ -81,7 +81,7 @@ const chartComparativo = Highcharts.chart("chart-comparativo", {
   ]
 });
 
-const chartTempInternas = Highcharts.chart("chart-temp-internas", {
+const chartTempInternas = Highcharts.chart("chart-hist-temp-internas", {
   chart: { type: 'line' },
   title: { text: 'Temperaturas Internas' },
   xAxis: { type: 'datetime' },
@@ -294,20 +294,26 @@ document.getElementById("filter-hum").addEventListener("click", () => {
 });
 
 // Temperaturas Internas - Filtro por fecha
-document.getElementById("form-temp-internas").addEventListener("submit", function (e) {
+document.getElementById("filter-temp-internas").addEventListener("submit", function (e) {
   e.preventDefault();
-  const desde = document.getElementById("desde-temp-internas").value;
-  const hasta = document.getElementById("hasta-temp-internas").value;
-  if (!desde || !hasta) return alert("Selecciona ambas fechas.");
-  loadHistoricalData(desde, hasta);
+  const desde = document.getElementById("start-date-temp-int").value;
+  const hasta = document.getElementById("end-date-temp-int").value;
+  if (desde && hasta) {
+    loadHistoricalData(desde, hasta);
+  } else {
+    alert("Por favor selecciona ambas fechas para Temperaturas");
+  }
 });
 
 // Amoniaco - Filtro por fecha
-document.getElementById("form-amoniaco").addEventListener("submit", function (e) {
+document.getElementById("filter-amoniaco").addEventListener("submit", function (e) {
   e.preventDefault();
-  const desde = document.getElementById("desde-amoniaco").value;
-  const hasta = document.getElementById("hasta-amoniaco").value;
-  if (!desde || !hasta) return alert("Selecciona ambas fechas.");
-  loadHistoricalData(desde, hasta);
+  const desde = document.getElementById("start-date-amoniaco").value;
+  const hasta = document.getElementById("end-date-amoniaco").value;
+  if (desde && hasta) {
+    loadHistoricalData(desde, hasta);
+  } else {
+    alert("Por favor selecciona ambas fechas para Amoniaco");
+  }
 });
 
