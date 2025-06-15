@@ -130,39 +130,100 @@ function loadHistoricalData(start, end) {
       return;
     }
 
-    let tempData = [];
-    let humData = [];
+    const tempSeriesData = {};
+    const humSeriesData = {};
 
-    // Recorremos cada nodo (ID aleatorio)
     Object.values(data).forEach(entry => {
       const fecha = entry.fecha;
       if (!fecha) return;
 
       const timeMs = isoToTimestamp(fecha);
       if (timeMs >= startTs && timeMs <= endTs) {
-        tempData.push([timeMs, entry.temperatura]);
-        humData.push([timeMs, entry.humedad]);
+        Object.entries(entry).forEach(([key, value]) => {
+          if (typeof value !== 'number') return;
+
+          if (key.includes("temperatura")) {
+            if (!tempSeriesData[key]) tempSeriesData[key] = [];
+            tempSeriesData[key].push([timeMs, value]);
+          }
+
+          if (key.includes("humedad")) {
+            if (!humSeriesData[key]) humSeriesData[key] = [];
+            humSeriesData[key].push([timeMs, value]);
+          }
+        });
       }
     });
 
-    // Ordenamos por fecha
-    tempData.sort((a, b) => a[0] - b[0]);
-    humData.sort((a, b) => a[0] - b[0]);
 
-    // Actualizar gráficos históricos y comparativo
-    chartHistTemp.series[0].setData(tempData);
-    chartHistHum.series[0].setData(humData);
+    Object.values(data).forEach(entry => {
+      const fecha = entry.fecha;
+      if (!fecha) return;
 
-    chartHistTemp.setTitle({ text: `Histórico Temperatura (${start} → ${end})` });
-    chartHistHum.setTitle({ text: `Histórico Humedad (${start} → ${end})` });
+      const timeMs = isoToTimestamp(fecha);
+      if (timeMs >= startTs && timeMs <= endTs) {
+        for (const key in tempSeriesData) {
+          if (entry[key] !== undefined) {
+            tempSeriesData[key].push([timeMs, entry[key]]);
+          }
+        }
+        for (const key in humSeriesData) {
+          if (entry[key] !== undefined) {
+            humSeriesData[key].push([timeMs, entry[key]]);
+          }
+        }
+      }
+    });
 
-    chartComparativo.series[0].setData(tempData);
-    chartComparativo.series[1].setData(humData);
-    chartComparativo.setTitle({ text: `Comparativo Temp vs Humedad (${start} → ${end})` });
+    // Ordenamos los datos
+    for (const key in tempSeriesData) {
+      tempSeriesData[key].sort((a, b) => a[0] - b[0]);
+    }
+
+    for (const key in humSeriesData) {
+      humSeriesData[key].sort((a, b) => a[0] - b[0]);
+    }
+
+    chartHistTemp.update({ series: [] }, false);  // 🔄 Limpia series anteriores
+    chartHistHum.update({ series: [] }, false);
+
+
+    // Actualizar gráfico histórico de temperatura
+    chartHistTemp.update({
+      series: Object.keys(tempSeriesData).map(name => ({
+        name,
+        data: tempSeriesData[name]
+      }))
+    }, true);
+
+    // Actualizar gráfico histórico de humedad
+    chartHistHum.update({
+      series: Object.keys(humSeriesData).map(name => ({
+        name,
+        data: humSeriesData[name]
+      }))
+    }, true);
+
+    // Comparativo (solo primera temperatura y humedad)
+    const compTemp = tempSeriesData["temperatura"] || [];
+    const compHum = humSeriesData["humedad"] || [];
+
+    chartComparativo.update({
+      series: [
+        ...Object.entries(tempSeriesData).map(([name, data]) => ({ name, data })),
+        ...Object.entries(humSeriesData).map(([name, data]) => ({ name, data }))
+      ]
+    });
+
+    chartHistTemp.setTitle({ text: `Histórico Temperaturas (${start} → ${end})` });
+    chartHistHum.setTitle({ text: `Histórico Humedades (${start} → ${end})` });
+    chartComparativo.setTitle({ text: `Comparativo Temperatura vs Humedad (${start} → ${end})` });
+
   }).catch(error => {
     console.error("Error al cargar historial:", error);
   });
 }
+
 
 
 // Listeners para filtros

@@ -30,7 +30,7 @@ main {
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px 30px;
+  padding: 5px 30px;
   text-align: center;
   margin-bottom: 20px;
 }
@@ -71,7 +71,7 @@ main {
 
 .tab-button {
   padding: 10px 16px;
-  background: #eeeeee;
+  background-color: rgba(124, 123, 123, 0.3);
   border: none;
   border-radius: 8px;
   cursor: pointer;
