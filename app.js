@@ -81,6 +81,23 @@ const chartComparativo = Highcharts.chart("chart-comparativo", {
   ]
 });
 
+const chartTempInternas = Highcharts.chart("chart-temp-internas", {
+  chart: { type: 'line' },
+  title: { text: 'Temperaturas Internas' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: '°C' }},
+  series: []
+});
+
+const chartAmoniaco = Highcharts.chart("chart-amoniaco", {
+  chart: { type: 'line' },
+  title: { text: 'Amoniaco en Aire (ppm)' },
+  xAxis: { type: 'datetime' },
+  yAxis: { title: { text: 'ppm' }},
+  series: [{ name: 'Amoniaco', data: [] }]
+});
+
+
 // Escuchar datos en tiempo real y actualizar gráficos
 onValue(tempRef, snapshot => {
   const val = snapshot.val();
@@ -132,6 +149,8 @@ function loadHistoricalData(start, end) {
 
     const tempSeriesData = {};
     const humSeriesData = {};
+    const internasData = {};
+    const amoniacoData = [];
 
     Object.values(data).forEach(entry => {
       const fecha = entry.fecha;
@@ -142,7 +161,7 @@ function loadHistoricalData(start, end) {
         Object.entries(entry).forEach(([key, value]) => {
           if (typeof value !== 'number') return;
 
-          if (key.includes("temperatura")) {
+          if (key.includes("temperatura") && !key.includes("temperaturaInterna")) {
             if (!tempSeriesData[key]) tempSeriesData[key] = [];
             tempSeriesData[key].push([timeMs, value]);
           }
@@ -150,6 +169,14 @@ function loadHistoricalData(start, end) {
           if (key.includes("humedad")) {
             if (!humSeriesData[key]) humSeriesData[key] = [];
             humSeriesData[key].push([timeMs, value]);
+          }
+
+          if (key.includes("temperaturaInterna")) {
+            if (!internasData[key]) internasData[key] = [];
+            internasData[key].push([timeMs, value]);
+          }
+          if (key === "amoniaco") {
+            amoniacoData.push([timeMs, value]);
           }
         });
       }
@@ -189,20 +216,39 @@ function loadHistoricalData(start, end) {
 
 
     // Actualizar gráfico histórico de temperatura
-    chartHistTemp.update({
-      series: Object.keys(tempSeriesData).map(name => ({
-        name,
-        data: tempSeriesData[name]
-      }))
-    }, true);
+    while (chartHistTemp.series.length) {
+      chartHistTemp.series[0].remove(false);
+    }
+    Object.keys(tempSeriesData).forEach(name => {
+      chartHistTemp.addSeries({ name, data: tempSeriesData[name] }, false);
+    });
+    chartHistTemp.redraw();
+
 
     // Actualizar gráfico histórico de humedad
-    chartHistHum.update({
-      series: Object.keys(humSeriesData).map(name => ({
-        name,
-        data: humSeriesData[name]
-      }))
-    }, true);
+    while (chartHistHum.series.length) {
+      chartHistHum.series[0].remove(false);
+    }
+    Object.keys(humSeriesData).forEach(name => {
+      chartHistHum.addSeries({ name, data: humSeriesData[name] }, false);
+    });
+    chartHistHum.redraw();
+
+    // Temperaturas internas
+    chartTempInternas.update({ series: [] }, false);
+    while (chartTempInternas.series.length) {
+      chartTempInternas.series[0].remove(false);
+    }
+    Object.entries(internasData).forEach(([name, data]) => {
+      chartTempInternas.addSeries({ name, data }, false);
+    });
+    chartTempInternas.redraw();
+
+// Amoniaco
+    chartAmoniaco.series[0].setData(amoniacoData, true);
+
+
+
 
     // Comparativo (solo primera temperatura y humedad)
     const compTemp = tempSeriesData["temperatura"] || [];
@@ -246,3 +292,22 @@ document.getElementById("filter-hum").addEventListener("click", () => {
     alert("Por favor selecciona ambas fechas para Humedad");
   }
 });
+
+// Temperaturas Internas - Filtro por fecha
+document.getElementById("form-temp-internas").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const desde = document.getElementById("desde-temp-internas").value;
+  const hasta = document.getElementById("hasta-temp-internas").value;
+  if (!desde || !hasta) return alert("Selecciona ambas fechas.");
+  loadHistoricalData(desde, hasta);
+});
+
+// Amoniaco - Filtro por fecha
+document.getElementById("form-amoniaco").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const desde = document.getElementById("desde-amoniaco").value;
+  const hasta = document.getElementById("hasta-amoniaco").value;
+  if (!desde || !hasta) return alert("Selecciona ambas fechas.");
+  loadHistoricalData(desde, hasta);
+});
+
